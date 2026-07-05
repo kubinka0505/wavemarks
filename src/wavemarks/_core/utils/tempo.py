@@ -475,7 +475,7 @@ def _variable_tempo(
 	Returns (overall_bpm, window_center_times, window_bpms).
 	"""
 	n_fft = 2048
-	env, fps, frame_times = _onset_envelope(sig, sr, n_fft = n_fft, hop_length = hop_length)
+	env, fps, _ = _onset_envelope(sig, sr, n_fft = n_fft, hop_length = hop_length)
 
 	duration = len(sig) / sr
 
@@ -669,6 +669,7 @@ def detect(
 		if not return_beats:
 			if return_curve:
 				return overall_bpm, times, curve
+
 			return overall_bpm
 
 		env, fps, frame_times = _onset_envelope(sig, sample_rate, hop_length = hop_length)

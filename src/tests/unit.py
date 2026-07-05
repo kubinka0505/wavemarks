@@ -1,20 +1,16 @@
-"""
-tests/test_markerfile.py
-
-Comprehensive unit tests for wavemarks.MarkerFile.
+"""Comprehensive unit tests for wavemarks.MarkerFile.
 
 Run with:
-	pytest --cov=wavemarks --cov-report=term-missing --cov-fail-under=90
+	pytest --cov=wavemarks --cov-report=term-missing
 """
 
 from __future__ import annotations
 
-import array
 import os
-import struct
+import wave
+import array
 import tempfile
 import warnings
-import wave
 from io import BytesIO
 from typing import Generator
 
