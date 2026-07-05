@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/kubinka0505/wavemarks/refs/heads/main/docs/img/logo.svg" width=250>
+<img src="https://raw.githubusercontent.com/kubinka0505/wavemarks/refs/heads/main/docs/img/logo.svg" width=275>
 
 <a href="https://github.com/kubinka0505/wavemarks/commit"><img src="https://custom-icon-badges.demolab.com/github/last-commit/kubinka0505/wavemarks?logo=commit&style=for-the-badge&cacheSeconds=60" alt="Last commit date"></a>　<a href="https://github.com/kubinka0505/wavemarks/blob/main/License.txt"><img src="https://custom-icon-badges.demolab.com/github/license/kubinka0505/wavemarks?logo=law&color=red&style=for-the-badge&cacheSeconds=60" alt="View license"></a>　<a href="https://app.codacy.com/gh/kubinka0505/wavemarks"><img src="https://img.shields.io/codacy/grade/979ef5b104c94c2ca42cc15210f4d8cf?logo=codacy&style=for-the-badge&cacheSeconds=60" alt="View grade"></a>　<a href="https://app.codacy.com/gh/kubinka0505/wavemarks/coverage"><img src="https://img.shields.io/codacy/coverage/979ef5b104c94c2ca42cc15210f4d8cf?logo=codacy&style=for-the-badge&cacheSeconds=60"></a><!--a href="https://pypi.org/project/wavemarks"><img src="https://img.shields.io/pypi/v/wavemarks?logo=pypi&logoColor=white&style=for-the-badge" alt="PyPI version"></a-->
 
@@ -16,7 +16,7 @@ Library for managing marker/region-related objects in audio files. 🚩
 ### Marker types 🏷️
 
 | Constant | [FourCC](https://wikipedia.org/wiki/FourCC) |
-|-|-|
+|:-|:-|
 | 🟦 `MarkerType.BASIC` | `rgn ` |
 | 🟨 `MarkerType.BEAT` | `beat` |
 | 🟩 `MarkerType.DOWNBEAT` | `dwnb` |
