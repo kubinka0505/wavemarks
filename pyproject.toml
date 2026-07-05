@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wavemarks"
+version = "1.0"
+description = ""
+authors = [
+	{ name = "kubinka0505" }
+]
+dependencies = [
+	"numpy", "scipy",
+	"soundfile"
+]
+
+readme = "ReadMe.md"
+
+license = "GPL-3.0-or-later"
+license-files = ["Licen[cs]e.*"]
+
+keywords = [
+	"wav", "markers",
+	"sound", "audio",
+	"smpl", "cue", "atdl", "ltxt",
+	"editor"
+]
+
+classifiers = [
+	"Development Status :: 4 - Beta",
+
+	"Environment :: Console",
+
+	"Intended Audience :: Developers",
+	"Intended Audience :: End Users/Desktop",
+
+	"Natural Language :: English",
+
+	"Operating System :: OS Independent",
+
+	"Programming Language :: Python :: 3 :: Only",
+
+	"Topic :: Multimedia :: Sound/Audio",
+	"Topic :: Multimedia :: Sound/Audio :: Analysis",
+	"Topic :: Multimedia :: Sound/Audio :: Editors",
+
+	"Typing :: Typed"
+]
+
+requires-python = ">= 3.10"
+
+[project.urls]
+Homepage = "https://github.com/kubinka0505/wavemarks"
+Repository = "https://github.com/kubinka0505/wavemarks"
+Issues = "https://github.com/kubinka0505/wavemarks/issues"
+Changelog = "https://github.com/kubinka0505/wavemarks/blob/master/docs/ChangeLog.md"
+
+[project.scripts]
+wavemarks = "wavemarks._cli.main:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.coverage.run]
+omit = [
+	"*/wavemarks/_core/models/tempo.py",
+	"*/wavemarks/_core/models/note.py",
+	"*/wavemarks/_core/utils/tempo.py"
+]
