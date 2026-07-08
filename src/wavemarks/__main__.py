@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import struct
 import warnings
 from io import BytesIO
@@ -83,6 +84,7 @@ class MarkerFile:
 
 		self._smpl_raw_header = smpl_raw_header
 		self._n_samples       = MarkerFile._get_sample_count(self._raw_file)
+		self._sample_rate     = MarkerFile._get_sample_rate(self._raw_file)
 		self._acid            = acid
 		self._cue_fields: List[Entry] = []
 
@@ -172,6 +174,35 @@ class MarkerFile:
 
 		if block_align and data_size:
 			return data_size // block_align
+
+		return None
+
+	@staticmethod
+	def _get_sample_rate(raw_file: bytes) -> Optional[int]:
+		"""
+		Reads nSamplesPerSec from the fmt chunk.
+
+		Returns
+		-------
+			integer:
+				Found sample rate value from the chunk.
+
+			None:
+				If not found.
+		"""
+		f = BytesIO(raw_file)
+		f.read(12)
+
+		while True:
+			try:
+				fourcc, size = _read_chunk_header(f)
+			except EOFError:
+				break
+
+			body = f.read(_pad(size))
+
+			if fourcc == b"fmt " and len(body) >= 8:
+				return struct.unpack_from("<I", body, 4)[0] # nSamplesPerSec
 
 		return None
 
@@ -396,6 +427,7 @@ class MarkerFile:
 		obj._raw_file        = self._raw_file
 		obj._smpl_raw_header = self._smpl_raw_header
 		obj._n_samples       = self._n_samples
+		obj._sample_rate     = self._sample_rate
 		obj._acid            = self._acid
 		obj._cue_fields      = sorted(entries, key = lambda m: m.start)
 
@@ -830,7 +862,7 @@ class MarkerFile:
 			num_beats      = num_beats,
 		)
 
-	def copy(self, dest: str) -> None:
+	def copy(self, dest: str, fixed_time: Optional[bool] = True) -> None:
 		"""
 		Copies all markers, regions, and loops onto another file.
 
@@ -845,17 +877,40 @@ class MarkerFile:
 				Path to an existing file to copy the entries onto.
 
 				The file must be valid; its audio data and non-marker chunks are preserved unchanged.
+
+			fixed_time (bool, optional):
+				Determines whether Entries should have start/end positions
+				recalculated in order to match the dest file sample rate.
 		"""
 		target = MarkerFile(dest)
 
+		src_rate = self._sample_rate
+		dst_rate = target._sample_rate
+
+		rates_differ = src_rate and dst_rate and src_rate != dst_rate
+
 		for m in self._cue_fields:
 			try:
-				target = target.add_entry(m)
-			except ValueError:
-				# already exists, skip
-				pass
+				if fixed_time and rates_differ:
+					ratio = dst_rate / src_rate
 
-		target.save()
+					scaled = Entry(
+						name      = m.name,
+						start     = math.floor(m.start * ratio)
+						end       = math.ceil(m.end * ratio) if m.end is not None else None
+						type      = m.type,
+						loop_type = m.loop_type,
+						comment   = m.comment,
+						note      = m.note,
+					)
+
+					target = target.add_entry(scaled)
+				else:
+					target = target.add_entry(m)
+			except ValueError:
+				pass # already exists, skip
+
+		target.save()  # ← outside the loop
 
 	def export(self, obj: Entry, path: str = None) -> None:
 		"""
