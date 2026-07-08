@@ -36,12 +36,10 @@ cd wavemarks
 python -m pip install -e .
 ```
 
-<!--span>
 2. [`pip`](https://pypi.org/project/pip)
 ```bash
-pip install wavemarks
+pip install git+https://github.com/kubinka0505/wavemarks -U
 ```
-</span-->
 
 ## Usage 📝
 
