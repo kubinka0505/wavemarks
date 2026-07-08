@@ -568,7 +568,8 @@ class MarkerFile:
 			OutOfBoundsError:
 				If start or end exceeds the file's total sample count.
 
-		Warns:
+		Warns
+		-----
 			FieldMismatchWarning:
 				If loop_type is set alongside comment or note,
 				since those fields are not written for loop entries.

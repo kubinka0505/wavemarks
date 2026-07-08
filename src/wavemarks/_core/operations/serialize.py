@@ -165,43 +165,43 @@ def _build_chunk_acid(
 	tempo:          Optional[float]           = None,
 	num_beats:      Optional[int]             = None,
 ) -> bytes:
-    """
-    Build a RIFF/WAVE `acid` chunk.
+	"""
+	Build a RIFF/WAVE `acid` chunk.
 
-    Creates an ACID metadata chunk from an existing ACID field mapping or
-    from the default ACID values. Keyword arguments override the corresponding
-    ACID properties before serialization.
+	Creates an ACID metadata chunk from an existing ACID field mapping or
+	from the default ACID values. Keyword arguments override the corresponding
+	ACID properties before serialization.
 
-    Parameters
+	Parameters
 	----------
-        acid (dict):
-            Existing ACID field dictionary.
+		acid (dict):
+			Existing ACID field dictionary.
 			If `None`, default ACID valuesare used.
 	
-        synced (bool):
-            Override the ACID loop-sync flag.
+		synced (bool):
+			Override the ACID loop-sync flag.
 
-        note_root (optional, int | str):
-            Override the root note. May be given as a MIDI note number or a
-            note name accepted by `_apply_acid_overrides`.
+		note_root (optional, int | str):
+			Override the root note. May be given as a MIDI note number or a
+			note name accepted by `_apply_acid_overrides`.
 
-        time_signature (optional, string):
-            Override the time signature (for example "4/4").
+		time_signature (optional, string):
+			Override the time signature (for example "4/4").
 
-        tempo (optional, float):
-            Override the tempo in beats per minute.
+		tempo (optional, float):
+			Override the tempo in beats per minute.
 
-        num_beats (int):
-            Override the number of beats in the loop.
+		num_beats (int):
+			Override the number of beats in the loop.
 
-    Returns
+	Returns
 	-------
-        str:
+		str:
 			The serialized `acid` RIFF chunk, including the chunk ID and size field.
 
 		b"":
 			If no ACID data is provided and no overrides are specified.
-    """
+	"""
 	if not acid and not any(
 		v is not None for v in (synced, note_root, time_signature, tempo, num_beats)
 	):
@@ -259,7 +259,7 @@ def _build_chunk_adtl(markers: List[Entry]) -> bytes:
 			The fully encoded "LIST" chunk with "adtl" type,
 			including its 8-byte header and even-padded body.
 	"""
- 	adtl = b"adtl"
+	adtl = b"adtl"
 
 	for m in markers:
 		# labl
