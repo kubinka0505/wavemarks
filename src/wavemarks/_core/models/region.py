@@ -8,7 +8,8 @@ class Region:
 	"""
 	A half-open sample range [start, end]).
 
-	Accepts:
+	Accepts
+	-------
 		- Region(200, 400)
 		- Region.from_range(range(200, 400))
 	"""

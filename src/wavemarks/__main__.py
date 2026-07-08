@@ -443,7 +443,7 @@ class MarkerFile:
 		IDs start at 1, matching the RIFF cue chunk convention.
 
 		Returns
-		----------
+		-------
 			int:
 				The smallest integer >= 1 not currently assigned to
 				any entry in _cue_fields.

@@ -23,6 +23,7 @@ from wavemarks._core.exceptions import (
 	InvalidRangeError,
 	OutOfBoundsError,
 )
+
 from wavemarks._core.models.entry import Entry
 from wavemarks._core.models.type import MarkerType
 
@@ -138,7 +139,7 @@ class TestContextManager:
 		with f as g:
 			g = g.add_entry(100, "x", MarkerType.BASIC)
 
-		# reload — disk should be unchanged
+		# reload - disk should be unchanged
 		reloaded = MarkerFile(wav_path)
 
 		assert reloaded.is_empty()
@@ -151,7 +152,7 @@ class TestContextManager:
 			pytest.fail("__exit__ should not raise")
 
 #-=-=-=-#
-# add_entry — markers
+# add_entry - markers
 
 class TestAddMarker:
 	def test_add_basic_marker(self, mf):
@@ -211,7 +212,7 @@ class TestAddMarker:
 		assert e not in mf
 
 #-=-=-=-#
-# add_entry — regions
+# add_entry - regions
 
 class TestAddRegion:
 	def test_add_tuple_region(self, mf):
@@ -257,7 +258,7 @@ class TestAddRegion:
 			mf.add_entry((200, 200), "zero-length")
 
 #-=-=-=-#
-# add_entry — loops
+# add_entry - loops
 
 class TestAddLoop:
 	def test_add_forward_loop(self, mf):
@@ -770,7 +771,7 @@ class TestGetSampleCount:
 class TestAcidProperties:
 	def test_synced_none_without_acid(self, mf):
 		# fresh silent WAV won't have ACID chunk
-		# may be None or bool depending on your test file — check it's not raising
+		# may be None or bool depending on your test file - check it's not raising
 		result = mf.synced
 		assert result is None or isinstance(result, bool)
 
