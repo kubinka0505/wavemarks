@@ -67,16 +67,16 @@ def _parse_chunk_acid(data: bytes) -> dict:
 
 	The standard ACID chunk body is 24 bytes:
 		type_of_file      (uint32) - bitfield; bit 0 distinguishes tempo mode
-	                          (0 = Synced, 1 = Free) as observed on
-	                          round-tripped files. Other bits are
-	                          preserved verbatim, not interpreted.
-		root_note         (uint16)
-		unknown1          (uint16) - reserved, preserved verbatim
-		unknown2          (uint32) - reserved, preserved verbatim
-		num_beats         (uint32)
-		meter_denominator (uint16)
-		meter_numerator   (uint16)
-		tempo             (float32)
+	                      (0 = Synced, 1 = Free) as observed on
+	                      round-tripped files. Other bits are
+	                      preserved verbatim, not interpreted.
+	    root_note         (uint16)
+	    unknown1          (uint16) - reserved, preserved verbatim
+	    unknown2          (uint32) - reserved, preserved verbatim
+	    num_beats         (uint32)
+	    meter_denominator (uint16)
+	    meter_numerator   (uint16)
+	    tempo             (float32)
 
 	Parameters
 	----------

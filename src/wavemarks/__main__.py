@@ -894,10 +894,17 @@ class MarkerFile:
 				if fixed_time and rates_differ:
 					ratio = dst_rate / src_rate
 
+					start = math.floor(m.start * ratio)
+					end   = math.ceil(m.end * ratio) if m.end is not None else None
+
+					# ensure end is strictly greater than start after rounding
+					if end is not None and end <= start:
+						end = start + 1
+
 					scaled = Entry(
 						name      = m.name,
-						start     = math.floor(m.start * ratio),
-						end       = math.ceil(m.end * ratio) if m.end is not None else None,
+						start     = start,
+						end       = end,
 						type      = m.type,
 						loop_type = m.loop_type,
 						comment   = m.comment,
