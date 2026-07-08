@@ -896,12 +896,12 @@ class MarkerFile:
 
 					scaled = Entry(
 						name      = m.name,
-						start     = math.floor(m.start * ratio)
-						end       = math.ceil(m.end * ratio) if m.end is not None else None
+						start     = math.floor(m.start * ratio),
+						end       = math.ceil(m.end * ratio) if m.end is not None else None,
 						type      = m.type,
 						loop_type = m.loop_type,
 						comment   = m.comment,
-						note      = m.note,
+						note      = m.note
 					)
 
 					target = target.add_entry(scaled)
