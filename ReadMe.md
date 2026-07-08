@@ -65,7 +65,7 @@ True
 >>> # Then remove it (must be equivalent!)
 >>> file_obj -= my_marker
 >>> 
->>> my_marker in file
+>>> my_marker in file_obj
 False
 >>> 
 >>> # Save to output
@@ -191,10 +191,10 @@ File time signature is: 4/4
 >>> from wavemarks import MarkerFile, MarkerType, Entry
 >>> 
 >>> # Initialize variables
->>> file_name = "input.wav"
+>>> file_path = "input.wav"
 >>> 
 >>> # Context manager
->>> with MarkerFile(file_name) as f:
+>>> with MarkerFile(file_path) as f:
 ...     # marker
 ...     f += Entry(start = 101, name = "example point", type = MarkerType.BASIC)
 ...     # region
@@ -202,12 +202,12 @@ File time signature is: 4/4
 ...     f.save("output.wav")
 >>>
 >>> # Reapply markers after external processing
->>> snapshot = MarkerFile(file_name).markers
+>>> snapshot = MarkerFile(file_path).markers
 >>>
->>> # normalize_input_audio(file_name)
+>>> # normalize_input_audio(file_path)
 >>> 
 >>> # Reload and save
->>> MarkerFile(file_name).apply(snapshot).save()
+>>> MarkerFile(file_path).apply(snapshot).save()
 ```
 
 ## Disclaimer ⚠️
