@@ -55,7 +55,7 @@ def _tmp_wav(
 	**kwargs,
 ) -> str:
 	"""Write a temporary WAV file and return its path."""
-	fd, path = tempfile.mkstemp(suffix=".wav")
+	fd, path = tempfile.mkstemp(suffix = ".wav")
 	os.close(fd)
 
 	with open(path, "wb") as f:
@@ -180,7 +180,7 @@ class TestAddMarker:
 		assert starts == sorted(starts)
 
 	def test_add_marker_via_entry_object(self, mf):
-		e = Entry(name="x", start=300)
+		e = Entry(name = "x", start = 300)
 		f = mf.add_entry(e)
 		assert f.markers[0].start == 300
 		assert f.markers[0].name  == "x"
@@ -195,19 +195,19 @@ class TestAddMarker:
 		assert mf.is_empty()
 
 	def test_iadd_operator(self, mf):
-		e = Entry(name="op", start=50)
+		e = Entry(name = "op", start = 50)
 		f = mf
 		f += e
 		assert len(f.markers) == 1
 
 	def test_contains_operator(self, mf):
-		e = Entry(name="op", start=50)
+		e = Entry(name = "op", start = 50)
 		f = mf
 		f += e
 		assert e in f
 
 	def test_not_contains(self, mf):
-		e = Entry(name="ghost", start=999)
+		e = Entry(name = "ghost", start = 999)
 		assert e not in mf
 
 #-=-=-=-#
@@ -230,7 +230,7 @@ class TestAddRegion:
 		assert f.regions[0].end   == 800
 
 	def test_add_entry_region(self, mf):
-		e = Entry(name="drop", start = 300, end = 700)
+		e = Entry(name = "drop", start = 300, end = 700)
 		f = mf.add_entry(e)
 
 		assert f.regions[0].end == 700
@@ -337,7 +337,7 @@ class TestDeleteEntry:
 		assert f.is_empty()
 
 	def test_delete_by_entry_object(self, mf):
-		e = Entry(name="hit", start = 100)
+		e = Entry(name = "hit", start = 100)
 		f = mf.add_entry(e)
 		f = f.delete_entry(e)
 
@@ -364,7 +364,7 @@ class TestDeleteEntry:
 		assert f.markers[0].name == "b"
 
 	def test_delete_region_by_object(self, mf):
-		e = Entry(name="v", start = 100, end = 500)
+		e = Entry(name = "v", start = 100, end = 500)
 
 		f = mf.add_entry(e)
 		f = f.delete_entry(e)
@@ -387,7 +387,7 @@ class TestRenameEntry:
 		assert f.markers[0].name == "new"
 
 	def test_rename_by_entry_object(self, mf):
-		e = Entry(name="old", start = 100)
+		e = Entry(name = "old", start = 100)
 		f = mf.add_entry(e)
 		f = f.rename_entry(e, "new")
 		assert f.markers[0].name == "new"
@@ -641,7 +641,7 @@ class TestSearch:
 		f = mf.add_entry(100, "x", MarkerType.DOWNBEAT)
 
 		assert f.search_markers(types = MarkerType.DOWNBEAT) is True
-		assert f.search_markers(types = MarkerType.CD_TRACK)  is False
+		assert f.search_markers(types = MarkerType.CD_TRACK) is False
 
 	def test_search_markers_by_type_list(self, mf):
 		f = mf.add_entry(100, "x", MarkerType.DOWNBEAT)
@@ -812,10 +812,10 @@ class TestFluency:
 		assert len(ids) == 2
 
 	def test_next_id_fills_gaps(self, mf):
-		f = mf.add_entry(100, "a")   # id=1
-		f = f.add_entry(200, "b")    # id=2
-		f = f.delete_entry(100, "a") # id=1 freed
-		f = f.add_entry(300, "c")    # should reuse id=1
+		f = mf.add_entry(100, "a")   # id = 1
+		f = f.add_entry(200, "b")    # id = 2
+		f = f.delete_entry(100, "a") # id = 1 freed
+		f = f.add_entry(300, "c")    # should reuse id = 1
 
 		ids = sorted(m.id for m in f.all)
 
