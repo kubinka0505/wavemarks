@@ -547,7 +547,7 @@ class TestExport:
 		with pytest.raises(ValueError):
 			f.export(f.markers[0])
 
- 	def test_export_default_filename(self, wav_path, tmp_path, monkeypatch):
+	def test_export_default_filename(self, wav_path, tmp_path, monkeypatch):
 		monkeypatch.chdir(tmp_path)
 		f = MarkerFile(wav_path)
 		f = f.add_entry((100, 300), "my_slice")
