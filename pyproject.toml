@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "wavemarks"
 version = "1.0"
-description = ""
+description = "Library for managing marker/region-related objects in audio files."
 authors = [
 	{ name = "kubinka0505" }
 ]
@@ -54,9 +54,6 @@ Homepage = "https://github.com/kubinka0505/wavemarks"
 Repository = "https://github.com/kubinka0505/wavemarks"
 Issues = "https://github.com/kubinka0505/wavemarks/issues"
 Changelog = "https://github.com/kubinka0505/wavemarks/blob/master/docs/ChangeLog.md"
-
-[project.scripts]
-wavemarks = "wavemarks._cli.main:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
