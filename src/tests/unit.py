@@ -553,7 +553,8 @@ class TestExport:
 		f = f.add_entry((100, 300), "my_slice")
 		f.export(f.regions[0])
 
-		assert (tmp_path / "my_slice.wav").exists()
+		src_basename = os.path.splitext(os.path.basename(wav_path))[0]
+		assert (tmp_path / f"{src_basename}_100_300.wav").exists()
 
 	def test_export_unnamed_region_fallback_name(self, wav_path, tmp_path, monkeypatch):
 		monkeypatch.chdir(tmp_path)
@@ -561,7 +562,8 @@ class TestExport:
 		f = f.add_entry((100, 300), "")
 		f.export(f.regions[0])
 
-		assert (tmp_path / "region_100_300.wav").exists()
+		src_basename = os.path.splitext(os.path.basename(wav_path))[0]
+		assert (tmp_path / f"{src_basename}_100_300.wav").exists()
 
 #-=-=-=-#
 # markers_to_regions
