@@ -171,17 +171,17 @@ File time signature is: 4/4
 >>> file_obj.regions
 [Entry(name='drop', type='rgn ', start=22935, end=89408)]
 >>> 
->>> # Extract audio regions audio slice to wave files
+>>> # Extract audio regions to separate wave files
 >>> #
->>> # If not specified, basename is:
->>> # for markers: `marker.name`
->>> # for regions: `region_{marker.start}_{marker.end}`
+>>> # Basename is:
+>>> # For named regions: `{region.name}`
+>>> # Otherwise: `region_{marker.start}_{marker.end}`
 >>> file_obj = MarkerFile("input.wav")
 >>> 
 >>> for region in file_obj.regions:
->>>     file_obj.export(region) 
+>>>     file_obj.export(region, "existing_directory/") 
 >>> 
->>> # Copy all markers from one file to another
+>>> # Copy all entries from one file to another
 >>> MarkerFile("input.wav").copy("output.wav")
 ```
 

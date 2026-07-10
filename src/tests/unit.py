@@ -1,7 +1,7 @@
-"""Comprehensive unit tests for wavemarks.MarkerFile.
+"""Comprehensive unit tests for wavmarks.MarkerFile.
 
 Run with:
-	pytest --cov=wavemarks --cov-report=term-missing
+	pytest --cov=wavmarks --cov-report=term-missing
 """
 
 from __future__ import annotations
@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 import wave
 import array
+import struct
 import tempfile
 import warnings
 from io import BytesIO
@@ -31,9 +32,9 @@ from wavemarks._core.models.type import MarkerType
 # Helpers
 
 SAMPLE_RATE  = 44100
-N_SAMPLES    = 44100  # 1 second of silence
+N_SAMPLES    = 44100 # 1 second of silence
 N_CHANNELS   = 1
-SAMPLE_WIDTH = 2      # 16-bit
+SAMPLE_WIDTH = 2   # 16-bit
 
 def _make_wav_bytes(
 	n_samples:    int = N_SAMPLES,
@@ -48,7 +49,6 @@ def _make_wav_bytes(
 		w.setsampwidth(sample_width)
 		w.setframerate(sample_rate)
 		w.writeframes(array.array("h", [0] * n_samples * n_channels).tobytes())
-
 	return buf.getvalue()
 
 def _tmp_wav(
@@ -67,7 +67,6 @@ def _tmp_wav(
 @pytest.fixture
 def wav_path() -> Generator[str, None, None]:
 	path = _tmp_wav()
-
 	yield path
 
 	if os.path.exists(path):
@@ -123,7 +122,7 @@ class TestConstruction:
 		assert len(mf) == 0
 		assert mf.markers == []
 		assert mf.regions == []
-		assert mf.loops   == []
+		assert mf.loops == []
 
 #-=-=-=-#
 # Context manager
@@ -161,8 +160,8 @@ class TestAddMarker:
 
 		m = f.markers[0]
 		assert m.start == 100
-		assert m.name  == "hit"
-		assert m.type  == MarkerType.BASIC
+		assert m.name == "hit"
+		assert m.type == MarkerType.BASIC
 		assert m.is_marker
 
 	def test_add_downbeat_marker(self, mf):
@@ -177,17 +176,20 @@ class TestAddMarker:
 	def test_markers_sorted_by_start(self, mf):
 		f = mf.add_entry(500, "late", MarkerType.BASIC)
 		f = f.add_entry(100, "early", MarkerType.BASIC)
+
 		starts = [m.start for m in f.markers]
 		assert starts == sorted(starts)
 
 	def test_add_marker_via_entry_object(self, mf):
 		e = Entry(name = "x", start = 300)
 		f = mf.add_entry(e)
+
 		assert f.markers[0].start == 300
-		assert f.markers[0].name  == "x"
+		assert f.markers[0].name == "x"
 
 	def test_duplicate_marker_raises(self, mf):
 		f = mf.add_entry(100, "hit", MarkerType.BASIC)
+
 		with pytest.raises(ValueError):
 			f.add_entry(100, "hit", MarkerType.BASIC)
 
@@ -199,12 +201,14 @@ class TestAddMarker:
 		e = Entry(name = "op", start = 50)
 		f = mf
 		f += e
+
 		assert len(f.markers) == 1
 
 	def test_contains_operator(self, mf):
 		e = Entry(name = "op", start = 50)
 		f = mf
 		f += e
+
 		assert e in f
 
 	def test_not_contains(self, mf):
@@ -220,20 +224,19 @@ class TestAddRegion:
 		assert len(f.regions) == 1
 
 		r = f.regions[0]
-		assert r.start     == 100
-		assert r.end       == 500
+		assert r.start == 100
+		assert r.end == 500
 		assert r.is_region
 
 	def test_add_range_region(self, mf):
 		f = mf.add_entry(range(200, 800), "chorus")
 
 		assert f.regions[0].start == 200
-		assert f.regions[0].end   == 800
+		assert f.regions[0].end == 800
 
 	def test_add_entry_region(self, mf):
 		e = Entry(name = "drop", start = 300, end = 700)
 		f = mf.add_entry(e)
-
 		assert f.regions[0].end == 700
 
 	def test_region_and_marker_can_overlap(self, mf):
@@ -263,6 +266,7 @@ class TestAddRegion:
 class TestAddLoop:
 	def test_add_forward_loop(self, mf):
 		f = mf.add_entry((100, 500), "lp", loop_type = 0)
+
 		assert len(f.loops) == 1
 		assert f.loops[0].loop_type == 0
 		assert f.loops[0].is_loop
@@ -350,7 +354,6 @@ class TestDeleteEntry:
 
 	def test_isub_operator(self, mf):
 		e = Entry(name = "x", start = 50)
-
 		mf += e
 		mf -= e
 
@@ -366,7 +369,6 @@ class TestDeleteEntry:
 
 	def test_delete_region_by_object(self, mf):
 		e = Entry(name = "v", start = 100, end = 500)
-
 		f = mf.add_entry(e)
 		f = f.delete_entry(e)
 
@@ -385,19 +387,22 @@ class TestRenameEntry:
 	def test_rename_by_string(self, mf):
 		f = mf.add_entry(100, "old")
 		f = f.rename_entry("old", "new")
+
 		assert f.markers[0].name == "new"
 
 	def test_rename_by_entry_object(self, mf):
 		e = Entry(name = "old", start = 100)
 		f = mf.add_entry(e)
 		f = f.rename_entry(e, "new")
+
 		assert f.markers[0].name == "new"
 
 	def test_rename_preserves_other_fields(self, mf):
 		f = mf.add_entry(100, "old", MarkerType.DOWNBEAT)
 		f = f.rename_entry("old", "new")
+
 		m = f.markers[0]
-		assert m.type  == MarkerType.DOWNBEAT
+		assert m.type == MarkerType.DOWNBEAT
 		assert m.start == 100
 
 	def test_rename_nonexistent_raises(self, mf):
@@ -417,8 +422,8 @@ class TestSave:
 		f = MarkerFile(wav_path)
 		f = f.add_entry(100, "x")
 		f.save()
-		reloaded = MarkerFile(wav_path)
 
+		reloaded = MarkerFile(wav_path)
 		assert len(reloaded.markers) == 1
 		assert reloaded.markers[0].name == "x"
 
@@ -449,7 +454,6 @@ class TestSave:
 		f.save()
 
 		reloaded = MarkerFile(wav_path)
-
 		assert reloaded._n_samples == N_SAMPLES
 
 	def test_round_trip_multiple_markers(self, wav_path):
@@ -457,12 +461,10 @@ class TestSave:
 		f = f.add_entry(100, "a", MarkerType.BASIC)
 		f = f.add_entry(200, "b", MarkerType.DOWNBEAT)
 		f = f.add_entry((300, 800), "c", MarkerType.CD_TRACK)
-
 		f.save()
+
 		r = MarkerFile(wav_path)
-
 		assert len(r.all) == 3
-
 		assert r.markers[0].name == "a"
 		assert r.markers[1].name == "b"
 		assert r.regions[0].name == "c"
@@ -474,9 +476,8 @@ class TestSave:
 
 		r = MarkerFile(wav_path)
 		assert len(r.loops) == 1
-
 		assert r.loops[0].start == 100
-		assert r.loops[0].end   == 500
+		assert r.loops[0].end == 500
 
 	def test_round_trip_delete_then_save(self, wav_path):
 		f = MarkerFile(wav_path)
@@ -486,7 +487,6 @@ class TestSave:
 		f.save()
 
 		r = MarkerFile(wav_path)
-
 		assert len(r.markers) == 1
 		assert r.markers[0].name == "y"
 
@@ -496,6 +496,7 @@ class TestSave:
 class TestCopy:
 	def test_copy_markers_to_dest(self, wav_path):
 		dest_path = _tmp_wav()
+
 		try:
 			f = MarkerFile(wav_path)
 			f = f.add_entry(100, "x")
@@ -510,6 +511,7 @@ class TestCopy:
 
 	def test_copy_skips_duplicates(self, wav_path):
 		dest_path = _tmp_wav()
+
 		try:
 			src = MarkerFile(wav_path).add_entry(100, "x")
 			src.save()
@@ -519,6 +521,7 @@ class TestCopy:
 
 			MarkerFile(wav_path).copy(dest_path)
 			reloaded = MarkerFile(dest_path)
+
 			assert len(reloaded.markers) == 1
 		finally:
 			os.unlink(dest_path)
@@ -553,8 +556,8 @@ class TestExport:
 		f = f.add_entry((100, 300), "my_slice")
 		f.export(f.regions[0])
 
-		src_basename = os.path.splitext(os.path.basename(wav_path))[0]
-		assert (tmp_path / f"{src_basename}_100_300.wav").exists()
+		# named region uses obj.name as filename
+		assert (tmp_path / "my_slice.wav").exists()
 
 	def test_export_unnamed_region_fallback_name(self, wav_path, tmp_path, monkeypatch):
 		monkeypatch.chdir(tmp_path)
@@ -563,7 +566,9 @@ class TestExport:
 		f.export(f.regions[0])
 
 		src_basename = os.path.splitext(os.path.basename(wav_path))[0]
-		assert (tmp_path / f"{src_basename}_100_300.wav").exists()
+		expected = tmp_path / f"{src_basename}_100_300.wav"
+
+		assert expected.exists()
 
 #-=-=-=-#
 # markers_to_regions
@@ -576,7 +581,6 @@ class TestMarkersToRegions:
 		assert len(g.regions) == 1
 
 		r = g.regions[0]
-
 		assert r.start == 100
 		assert r.end == 500
 
@@ -648,7 +652,7 @@ class TestSearch:
 
 	def test_search_markers_by_type_list(self, mf):
 		f = mf.add_entry(100, "x", MarkerType.DOWNBEAT)
-		assert f.search_markers(types=[MarkerType.BASIC, MarkerType.DOWNBEAT]) is True
+		assert f.search_markers(types = [MarkerType.BASIC, MarkerType.DOWNBEAT]) is True
 
 	def test_search_markers_at(self, mf):
 		f = mf.add_entry(100, "x")
@@ -664,8 +668,8 @@ class TestSearch:
 	def test_search_regions_start_at(self, mf):
 		f = mf.add_entry((100, 500), "r")
 
-		assert f.search_regions(start_at=100) is True
-		assert f.search_regions(start_at=200) is False
+		assert f.search_regions(start_at = 100) is True
+		assert f.search_regions(start_at = 200) is False
 
 	def test_search_regions_end_at(self, mf):
 		f = mf.add_entry((100, 500), "r")
@@ -711,7 +715,6 @@ class TestProperties:
 		f = f.add_entry(200, "b")
 
 		names = [m.name for m in f]
-
 		assert names == ["a", "b"]
 
 	def test_all_returns_everything(self, mf):
@@ -773,7 +776,7 @@ class TestGetSampleCount:
 class TestAcidProperties:
 	def test_synced_none_without_acid(self, mf):
 		# fresh silent WAV won't have ACID chunk
-		# may be None or bool depending on your test file - check it's not raising
+		# may be None or bool depending on test file
 		result = mf.synced
 		assert result is None or isinstance(result, bool)
 
@@ -809,7 +812,6 @@ class TestFluency:
 	def test_next_id_unique(self, mf):
 		f = mf.add_entry(100, "a")
 		f = f.add_entry(200, "b")
-
 		ids = {m.id for m in f.all}
 
 		assert len(ids) == 2
