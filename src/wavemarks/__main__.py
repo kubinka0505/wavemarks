@@ -33,7 +33,6 @@ from ._core.operations.serialize import (
 	_DEFAULT_ACID
 )
 
-import wave
 from typing import List, Tuple, Optional, Union, Iterator
 
 #-=-=-=-#
