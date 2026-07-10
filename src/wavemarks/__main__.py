@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import math
 import struct
 import warnings
@@ -31,6 +32,7 @@ from ._core.operations.serialize import (
 	_DEFAULT_ACID
 )
 
+import wave
 from typing import List, Tuple, Optional, Union, Iterator
 
 #-=-=-=-#
@@ -948,23 +950,39 @@ class MarkerFile:
 				since point markers have no range to extract audio from.
 		"""
 		if not (obj.is_region or obj.is_loop):
-			raise ValueError(
-				f"Entry {obj.name!r} is a marker - no range to export"
+			raise ValueError(f"Entry {obj.name!r} is a marker - no range to export")
+
+		src_basename, src_ext = os.path.splitext(os.path.basename(self.path))
+		filename = "_".join((src_basename, str(obj.start), str(obj.end))) + src_ext
+
+		if src_ext.lower() not in (".wav",):
+			warnings.warn(
+				f"Exporting to non-WAV format {src_ext!r} - output may not be readable by all tools",
+				UserWarning,
 			)
 
-		if not path:
-			path = (obj.name or f"region_{obj.start}_{obj.end}") + ".wav"
+		if path is None:
+			path = filename
+		elif os.path.isdir(path):
+			path = os.path.join(path, filename)
 
-		import wave
+		try:
+			import soundfile as sf
 
-		with wave.open(self.path, "rb") as src:
-			params = src.getparams()
-			src.setpos(obj.start)
-			frames = src.readframes(obj.end - obj.start)
+			info     = sf.info(self.path)
+			data, sr = sf.read(self.path, always_2d = True, dtype = "float64")
 
-		with wave.open(path, "wb") as dst:
-			dst.setparams(params)
-			dst.writeframes(frames)
+			sf.write(path, data[obj.start:obj.end], sr, subtype = info.subtype)
+
+		except ImportError:
+			with wave.open(self.path, "rb") as src:
+				params = src.getparams()
+				src.setpos(obj.start)
+				frames = src.readframes(obj.end - obj.start)
+
+			with wave.open(path, "wb") as dst:
+				dst.setparams(params)
+				dst.writeframes(frames)
 
 	#-=-=-=-#
 	# Utility
