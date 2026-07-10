@@ -5,6 +5,7 @@ import math
 import struct
 import warnings
 from io import BytesIO
+from pathlib import Path
 
 from ._core.exceptions import (
 	OutOfBoundsError,
@@ -66,7 +67,7 @@ class MarkerFile:
 		and save() will require an explicit path argument.
 		"""
 		if isinstance(source, str):
-			self.path     = source
+			self.path     = source # str(Path(source).resolve())
 			raw_file_data = open(source, "rb").read()
 		elif isinstance(source, (bytes, bytearray)):
 			self.path     = None
@@ -922,7 +923,7 @@ class MarkerFile:
 
 		target.save()  # ← outside the loop
 
-	def export(self, obj: Entry, path: str = None) -> None:
+	def export(self, obj: Entry, path: str = None, preserve: Optional[bool] = False) -> None:
 		"""
 		Exports the audio slice covered by a region or loop to a new file.
 
@@ -943,6 +944,9 @@ class MarkerFile:
 				Basename defaults to `{marker.name}` if `marker.name`
 				is non-empty, or "region_{marker.start}_{marker.end}" otherwise.
 
+			preserve (Optional[bool]):
+				Determines whether exported `obj` should be included inside the output file.
+
 		Raises
 		------
 			ValueError:
@@ -952,12 +956,22 @@ class MarkerFile:
 		if not (obj.is_region or obj.is_loop):
 			raise ValueError(f"Entry {obj.name!r} is a marker - no range to export")
 
-		src_basename, src_ext = os.path.splitext(os.path.basename(self.path))
-		filename = "_".join((src_basename, str(obj.start), str(obj.end))) + src_ext
+		src_basename, src_ext = os.path.splitext(
+			os.path.basename(
+				str(Path(self.path).resolve())
+			)
+		)
+
+		if obj.name:
+			filename = obj.name
+		else:
+			filename = "_".join((src_basename, str(obj.start), str(obj.end)))
+
+		filename += src_ext
 
 		if src_ext.lower() not in (".wav",):
 			warnings.warn(
-				f"Exporting to non-WAV format {src_ext!r} - output may not be readable by all tools",
+				f"Exporting to internally unsupported format {src_ext!r} - output may not be readable by all tools",
 				UserWarning,
 			)
 
@@ -966,23 +980,35 @@ class MarkerFile:
 		elif os.path.isdir(path):
 			path = os.path.join(path, filename)
 
-		try:
-			import soundfile as sf
+		import soundfile as sf
 
-			info     = sf.info(self.path)
-			data, sr = sf.read(self.path, always_2d = True, dtype = "float64")
+		with sf.SoundFile(self.path) as f_in:
+			f_in.seek(obj.start)
+			frames = obj.end - obj.start
 
-			sf.write(path, data[obj.start:obj.end], sr, subtype = info.subtype)
+			data = f_in.read(
+				frames = frames,
+				always_2d = True,
+				dtype = "float64"
+			)
 
-		except ImportError:
-			with wave.open(self.path, "rb") as src:
-				params = src.getparams()
-				src.setpos(obj.start)
-				frames = src.readframes(obj.end - obj.start)
+			with sf.SoundFile(
+				path,
+				mode = "w",
+				samplerate = f_in.samplerate,
+				channels = f_in.channels,
+				subtype = f_in.subtype
+			) as f_out:
+				f_out.write(data)
 
-			with wave.open(path, "wb") as dst:
-				dst.setparams(params)
-				dst.writeframes(frames)
+		if preserve:
+			new_obj = obj
+			new_obj.start = 0
+			new_obj.end = frames
+
+			new_file = MarkerFile(path)
+			new_file = new_file.add_entry(new_obj)
+			new_file.save()
 
 	#-=-=-=-#
 	# Utility
